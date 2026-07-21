@@ -1,6 +1,8 @@
 # ApexOS - AI Operating System for Human Performance
 
-**ApexOS** is a sophisticated, bilingual (English & Persian) sports coaching and athlete management platform. Designed as an "AI Operating System for Human Performance," it provides coaches and sports scientists with a centralized hub for monitoring, analyzing, and optimizing athlete performance through real-time biometrics, motion analysis, and personalized training programs.
+## About
+
+**ApexOS** is a sophisticated, bilingual (English & Persian) sports coaching and athlete management platform. Designed as an "AI Operating System for Human Performance," it provides coaches and sports scientists with a centralized hub for monitoring, analyzing, and optimizing athlete performance through real-time biometrics, motion analysis, and personalized training programs. This platform aims to empower sports professionals with data-driven insights to enhance athlete development, prevent injuries, and maximize performance potential.
 
 ---
 
@@ -49,35 +51,42 @@ Full support for both **English (LTR)** and **Persian (RTL)**, including localiz
 
 ---
 
-## ⚙️ Getting Started
+## ▶️ How to Run It
+
+To get ApexOS up and running on your local machine, follow these steps:
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) (Latest LTS recommended)
-- [pnpm](https://pnpm.io/) or `npm`
+Ensure you have the following installed:
+- [Node.js](https://nodejs.org/) (Latest LTS version recommended)
+- A package manager: [pnpm](https://pnpm.io/) (recommended) or `npm`
 
-### Installation
-1. Clone the repository:
+### Installation and Setup
+1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-username/apex-os.git
+   git clone https://github.com/Mmadrb/apex-os.git
    cd apex-os
    ```
-2. Install dependencies:
+2. **Install dependencies:**
    ```bash
    npm install
    ```
 
-### Development
-Start the development server:
+### Development Mode
+To start the development server with hot-reloading:
 ```bash
 npm run dev
 ```
+This will typically open the application in your browser at `http://localhost:5173` (or a similar port).
 
-### Production
-Build the project for production:
+### Production Build
+To build the project for production deployment:
 ```bash
 npm run build
 ```
-Preview the production build:
+This command compiles and optimizes the application for deployment, placing the output in the `dist` directory.
+
+### Preview Production Build
+To locally preview the optimized production build:
 ```bash
 npm run preview
 ```
