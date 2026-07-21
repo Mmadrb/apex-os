@@ -12,15 +12,12 @@ import { NutritionStudio } from './components/NutritionStudio';
 import { VisionKinematics } from './components/VisionKinematics';
 import { BiometricsLab } from './components/BiometricsLab';
 import { Athlete360Profile } from './components/Athlete360Profile';
-import { FranchiseHQ } from './components/FranchiseHQ';
 import { AthleteMobileSim } from './components/AthleteMobileSim';
-import { InvestorDeck } from './components/InvestorDeck';
 
 import { 
   MOCK_ATHLETES, 
   EXERCISE_DATABASE, 
   MOCK_PROGRAM, 
-  MOCK_FRANCHISES, 
   MOCK_AI_RECOMMENDATIONS 
 } from './data/mockData';
 
@@ -28,7 +25,6 @@ import {
   MOCK_ATHLETES_FA,
   EXERCISE_DATABASE_FA,
   MOCK_PROGRAM_FA,
-  MOCK_FRANCHISES_FA,
   MOCK_AI_RECOMMENDATIONS_FA
 } from './data/mockDataFa';
 
@@ -45,7 +41,6 @@ export function App() {
   const initialAthletes = isFa ? MOCK_ATHLETES_FA : MOCK_ATHLETES;
   const exerciseDb = isFa ? EXERCISE_DATABASE_FA : EXERCISE_DATABASE;
   const initialProgram = isFa ? MOCK_PROGRAM_FA : MOCK_PROGRAM;
-  const franchises = isFa ? MOCK_FRANCHISES_FA : MOCK_FRANCHISES;
   const initialAiRecs = isFa ? MOCK_AI_RECOMMENDATIONS_FA : MOCK_AI_RECOMMENDATIONS;
 
   const [athletes, setAthletes] = useState<AthleteProfile[]>(initialAthletes);
@@ -108,13 +103,11 @@ export function App() {
         <main className="flex-1 p-3 sm:p-6 lg:p-8 space-y-6 max-w-7xl w-full mx-auto">
           
           {/* Always Present Live Biometric Calibrator */}
-          {activeTab !== 'investor_deck' && activeTab !== 'franchise' && (
-            <BiometricCalibrator
-              athlete={selectedAthlete}
-              onUpdateAthlete={handleUpdateAthlete}
-              lang={lang}
-            />
-          )}
+          <BiometricCalibrator
+            athlete={selectedAthlete}
+            onUpdateAthlete={handleUpdateAthlete}
+            lang={lang}
+          />
 
           {/* Tab 1: Main Overview Dashboard (Combines Stat Cards, Active Alerts & Stamina Chart) */}
           {activeTab === 'coach' && (
@@ -211,19 +204,9 @@ export function App() {
             />
           )}
 
-          {/* Tab 8: Gym Franchise Operations */}
-          {activeTab === 'franchise' && (
-            <FranchiseHQ franchises={franchises} lang={lang} />
-          )}
-
-          {/* Tab 9: Athlete Mobile Sim */}
+          {/* Tab 8: Athlete Mobile Sim */}
           {activeTab === 'mobile_sim' && (
             <AthleteMobileSim athlete={selectedAthlete} program={program} lang={lang} />
-          )}
-
-          {/* Tab 10: Investor Pitch Deck */}
-          {activeTab === 'investor_deck' && (
-            <InvestorDeck lang={lang} />
           )}
 
         </main>
@@ -233,8 +216,8 @@ export function App() {
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
             <div>
               <strong>
-                {isFa ? 'معماری داشبورد مربیگری اپکس (ApexOS)' : 'ApexOS Refactored SaaS Architecture'}
-              </strong> • {isFa ? 'سیستم‌عامل عملکرد ورزشی و طول عمر' : 'AI Operating System for Human Performance & Longevity'}
+                {isFa ? 'معماری داشبورد مربیگری اپکس (ApexOS)' : 'ApexOS Sports Coaching OS Architecture'}
+              </strong> • {isFa ? 'سیستم‌عامل عملکرد ورزشی و مدیریت هوشمند ورزشکاران' : 'AI Operating System for Human Performance'}
             </div>
             <div className="flex items-center gap-4 text-slate-400 text-[11px]">
               <span>{isFa ? 'رابط کاربری ری‌اکت و تیلویند' : 'React & Tailwind CSS'}</span>

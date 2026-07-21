@@ -9,8 +9,7 @@ import {
   ChevronLeft, 
   ChevronRight,
   Sparkles,
-  Building2,
-  Presentation
+  Smartphone
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -39,8 +38,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'vision', label: 'آنالیز بینایی حرکت', icon: Camera },
     { id: 'builder', label: 'طراح تمرینات', icon: Dumbbell },
     { id: 'nutrition', label: 'هوش تغذیه', icon: Apple },
-    { id: 'franchise', label: 'مدیریت باشگاه', icon: Building2 },
-    { id: 'investor_deck', label: 'ارائه سرمایه‌گذار', icon: Presentation },
+    { id: 'mobile_sim', label: 'اپ موبایل ورزشکار', icon: Smartphone },
   ] : [
     { id: 'coach', label: 'Dashboard', icon: LayoutDashboard, badge: alertCount > 0 ? alertCount : null },
     { id: 'roster', label: 'Team Roster', icon: Users },
@@ -48,8 +46,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'vision', label: 'Motion Analysis', icon: Camera },
     { id: 'builder', label: 'Workout Studio', icon: Dumbbell },
     { id: 'nutrition', label: 'Nutrition AI', icon: Apple },
-    { id: 'franchise', label: 'Gym Operations', icon: Building2 },
-    { id: 'investor_deck', label: 'VC Deck', icon: Presentation },
+    { id: 'mobile_sim', label: 'Athlete Mobile App', icon: Smartphone },
   ];
 
   return (

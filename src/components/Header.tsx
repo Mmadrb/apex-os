@@ -4,8 +4,6 @@ import {
   Dumbbell, 
   Apple, 
   Camera, 
-  Building2, 
-  Presentation, 
   Smartphone, 
   Cpu, 
   Zap, 
@@ -32,24 +30,22 @@ export const Header: React.FC<HeaderProps> = ({
 
   const navItems = isFa ? [
     { id: 'coach', label: 'مربیگری', icon: Users },
+    { id: 'roster', label: 'بازیکنان', icon: Users },
     { id: 'builder', label: 'طراح تمرین', icon: Dumbbell },
     { id: 'nutrition', label: 'هوش تغذیه', icon: Apple },
     { id: 'vision', label: 'آنالیز حرکتی', icon: Camera },
     { id: 'biometrics', label: 'پایش و آزمایش', icon: Activity },
     { id: 'profile360', label: 'شناسنامه ۳۶۰°', icon: Cpu },
-    { id: 'franchise', label: 'نمایندگی‌ها', icon: Building2 },
     { id: 'mobile_sim', label: 'اپ موبایل', icon: Smartphone },
-    { id: 'investor_deck', label: 'ارائه سرمایه‌گذار', icon: Presentation },
   ] : [
     { id: 'coach', label: 'Coach Hub', icon: Users },
+    { id: 'roster', label: 'Team Roster', icon: Users },
     { id: 'builder', label: 'Workout Studio', icon: Dumbbell },
     { id: 'nutrition', label: 'Nutrition AI', icon: Apple },
     { id: 'vision', label: 'Form Kinematics', icon: Camera },
     { id: 'biometrics', label: 'Wearable & Labs', icon: Activity },
     { id: 'profile360', label: '360° Athlete Graph', icon: Cpu },
-    { id: 'franchise', label: 'Franchise HQ', icon: Building2 },
     { id: 'mobile_sim', label: 'Athlete Mobile', icon: Smartphone },
-    { id: 'investor_deck', label: 'Investor Pitch', icon: Presentation },
   ];
 
   return (
