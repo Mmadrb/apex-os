@@ -1,0 +1,491 @@
+import type { AthleteProfile, Exercise, WorkoutProgram, FranchiseLocation, AIRecommendation } from '../types';
+
+export const MOCK_ATHLETES: AthleteProfile[] = [
+  {
+    id: 'ath-1',
+    name: 'Alex Rivera',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    age: 28,
+    gender: 'Male',
+    goal: 'Hypertrophy',
+    phase: 'Overload',
+    coachId: 'coach-101',
+    coachName: 'Coach Marcus Vance',
+    membershipTier: 'Elite Coaching',
+    riskScore: 'Moderate',
+    riskReason: 'Elevated acute fatigue (ACWR 1.48) & shoulder tenderness',
+    weightKg: 82.5,
+    targetWeightKg: 85.0,
+    heightCm: 180,
+    bodyFatPercent: 11.8,
+    bmi: 25.5,
+    muscleMassKg: 42.1,
+    circumferences: {
+      waist: 81.0,
+      chest: 108.5,
+      arms: 41.2,
+      thighs: 62.0,
+      calves: 38.5,
+      neck: 40.0,
+      hips: 96.0,
+      forearms: 32.0,
+    },
+    photos: [
+      {
+        date: '2026-07-01',
+        front: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&auto=format&fit=crop&q=80',
+        side: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&auto=format&fit=crop&q=80',
+        back: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&auto=format&fit=crop&q=80',
+      }
+    ],
+    caloriesTarget: 3100,
+    caloriesLogged: 2950,
+    proteinTargetG: 200,
+    proteinLoggedG: 192,
+    carbsTargetG: 380,
+    carbsLoggedG: 360,
+    fatsTargetG: 80,
+    fatsLoggedG: 78,
+    hydrationOzTarget: 128,
+    hydrationOzLogged: 110,
+    wearableSync: {
+      device: 'WHOOP 4.0',
+      lastSynced: '12 mins ago',
+      hrvMs: 68,
+      hrvBaselineMs: 78,
+      restingHeartRateBpm: 52,
+      sleepScore: 74,
+      sleepHours: 7.1,
+      recoveryScore: 62,
+      acwrRatio: 1.48,
+      strainIndex: 16.2,
+    },
+    biofeedback: {
+      mood: 'Good',
+      energyLevel: 7,
+      stressLevel: 6,
+      muscleSoreness: 8,
+      jointAches: ['Left Anterior Deltoid'],
+    },
+    labResults: {
+      testDate: '2026-06-15',
+      totalTestosteroneNgDl: 780,
+      freeTestosteronePgMl: 21.4,
+      fastingGlucoseMgDl: 88,
+      hba1cPercent: 5.1,
+      hsCrpMgL: 2.1,
+      t3NgDl: 125,
+      t4McgDl: 8.2,
+      cortisolMcgDl: 18.5,
+      ldlMgDl: 95,
+      hdlMgDl: 58,
+      triglyceridesMgDl: 102,
+      flaggedMarkers: ['hs-CRP Inflammatory Signal'],
+    },
+    supplements: [
+      { name: 'Creatine Monohydrate', dosage: '5g', timing: 'Post-Workout', status: 'Taken' },
+      { name: 'Whey Isolate', dosage: '40g', timing: 'Post-Workout', status: 'Taken' },
+      { name: 'Omega-3 Fish Oil', dosage: '3000mg', timing: 'Morning Meal', status: 'Taken' },
+      { name: 'Magnesium Glycinate', dosage: '400mg', timing: 'Before Bed', status: 'Pending' },
+    ],
+    medications: [],
+    injuries: [
+      { area: 'Left Shoulder Infraspinatus', severity: 'Mild', notes: 'Pinch on heavy overhead extension above 85% 1RM' }
+    ],
+    workoutCompliancePercent: 95,
+    nutritionCompliancePercent: 92,
+    activeStreakDays: 14,
+  },
+
+  {
+    id: 'ath-2',
+    name: 'Sarah Chen',
+    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
+    age: 32,
+    gender: 'Female',
+    goal: 'Fat Loss',
+    phase: 'Peak Prep',
+    coachId: 'coach-101',
+    coachName: 'Coach Marcus Vance',
+    membershipTier: 'Elite Coaching',
+    riskScore: 'Low',
+    weightKg: 58.2,
+    targetWeightKg: 56.0,
+    heightCm: 165,
+    bodyFatPercent: 18.2,
+    bmi: 21.4,
+    muscleMassKg: 27.8,
+    circumferences: {
+      waist: 66.5,
+      chest: 88.0,
+      arms: 28.5,
+      thighs: 52.4,
+      calves: 34.0,
+      neck: 32.0,
+      hips: 91.0,
+      forearms: 23.5,
+    },
+    photos: [],
+    caloriesTarget: 1850,
+    caloriesLogged: 1820,
+    proteinTargetG: 145,
+    proteinLoggedG: 148,
+    carbsTargetG: 160,
+    carbsLoggedG: 155,
+    fatsTargetG: 50,
+    fatsLoggedG: 48,
+    hydrationOzTarget: 100,
+    hydrationOzLogged: 96,
+    wearableSync: {
+      device: 'Apple Health',
+      lastSynced: '2 mins ago',
+      hrvMs: 82,
+      hrvBaselineMs: 80,
+      restingHeartRateBpm: 48,
+      sleepScore: 88,
+      sleepHours: 8.2,
+      recoveryScore: 91,
+      acwrRatio: 1.05,
+      strainIndex: 12.8,
+    },
+    biofeedback: {
+      mood: 'Peak',
+      energyLevel: 9,
+      stressLevel: 3,
+      muscleSoreness: 4,
+      jointAches: [],
+    },
+    labResults: {
+      testDate: '2026-07-02',
+      totalTestosteroneNgDl: 38,
+      freeTestosteronePgMl: 1.8,
+      fastingGlucoseMgDl: 82,
+      hba1cPercent: 4.9,
+      hsCrpMgL: 0.6,
+      t3NgDl: 110,
+      t4McgDl: 7.9,
+      cortisolMcgDl: 12.1,
+      ldlMgDl: 88,
+      hdlMgDl: 68,
+      triglyceridesMgDl: 75,
+      flaggedMarkers: [],
+    },
+    supplements: [
+      { name: 'Multivitamin Elite', dosage: '2 Caps', timing: 'Morning', status: 'Taken' },
+      { name: 'L-Carnitine Tartrate', dosage: '2000mg', timing: 'Pre-Cardio', status: 'Taken' },
+    ],
+    medications: [],
+    injuries: [],
+    workoutCompliancePercent: 98,
+    nutritionCompliancePercent: 97,
+    activeStreakDays: 28,
+  },
+
+  {
+    id: 'ath-3',
+    name: 'Demetrius Thorne',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    age: 35,
+    gender: 'Male',
+    goal: 'Powerlifting',
+    phase: 'Foundation',
+    coachId: 'coach-102',
+    coachName: 'Coach Sarah Miller',
+    membershipTier: 'Pro Hybrid',
+    riskScore: 'High',
+    riskReason: 'Low sleep score (42%) & high reported lumbar stress',
+    weightKg: 104.0,
+    targetWeightKg: 105.0,
+    heightCm: 185,
+    bodyFatPercent: 19.5,
+    bmi: 30.4,
+    muscleMassKg: 52.0,
+    circumferences: {
+      waist: 92.0,
+      chest: 122.0,
+      arms: 46.5,
+      thighs: 68.0,
+      calves: 43.0,
+      neck: 44.0,
+      hips: 106.0,
+      forearms: 36.0,
+    },
+    photos: [],
+    caloriesTarget: 3800,
+    caloriesLogged: 3400,
+    proteinTargetG: 240,
+    proteinLoggedG: 210,
+    carbsTargetG: 450,
+    carbsLoggedG: 400,
+    fatsTargetG: 100,
+    fatsLoggedG: 95,
+    hydrationOzTarget: 150,
+    hydrationOzLogged: 90,
+    wearableSync: {
+      device: 'Garmin Fenix 7',
+      lastSynced: '1 hour ago',
+      hrvMs: 44,
+      hrvBaselineMs: 65,
+      restingHeartRateBpm: 64,
+      sleepScore: 42,
+      sleepHours: 5.2,
+      recoveryScore: 38,
+      acwrRatio: 1.62,
+      strainIndex: 18.9,
+    },
+    biofeedback: {
+      mood: 'Fatigued',
+      energyLevel: 4,
+      stressLevel: 8,
+      muscleSoreness: 9,
+      jointAches: ['L4-L5 Lumbar Spine', 'Right Knee Tendon'],
+    },
+    labResults: {
+      testDate: '2026-05-18',
+      totalTestosteroneNgDl: 520,
+      freeTestosteronePgMl: 14.2,
+      fastingGlucoseMgDl: 96,
+      hba1cPercent: 5.4,
+      hsCrpMgL: 3.4,
+      t3NgDl: 115,
+      t4McgDl: 7.4,
+      cortisolMcgDl: 24.1,
+      ldlMgDl: 122,
+      hdlMgDl: 42,
+      triglyceridesMgDl: 145,
+      flaggedMarkers: ['Elevated Cortisol', 'Elevated hs-CRP'],
+    },
+    supplements: [
+      { name: 'Creatine HCl', dosage: '5g', timing: 'Morning', status: 'Taken' },
+      { name: 'Ashwagandha KSM-66', dosage: '600mg', timing: 'Evening', status: 'Pending' },
+    ],
+    medications: ['NSAID Ibuprofen 400mg PRN'],
+    injuries: [
+      { area: 'L4-L5 Lumbar Disc Strain', severity: 'Moderate', notes: 'Pain triggers when flexion occurs under heavy axial loading' }
+    ],
+    workoutCompliancePercent: 78,
+    nutritionCompliancePercent: 82,
+    activeStreakDays: 3,
+  }
+];
+
+export const EXERCISE_DATABASE: Exercise[] = [
+  {
+    id: 'ex-1',
+    name: 'Barbell Incline Press',
+    category: 'Chest',
+    primaryMuscle: 'Upper Pectoralis Major',
+    secondaryMuscles: ['Anterior Deltoids', 'Triceps Brachii'],
+    equipment: 'Barbell & Incline Bench',
+    difficulty: 'Intermediate',
+    tempoDefault: '3-1-1-0',
+    substitutes: ['Dumbbell Incline Press', 'Incline Hammer Strength Press'],
+    instructions: 'Lower barbell with 3-second eccentric to upper sternum. Pause 1s, explode upward, driving scapula into bench.'
+  },
+  {
+    id: 'ex-2',
+    name: 'Barbell Back Squat',
+    category: 'Quads',
+    primaryMuscle: 'Quadriceps Femoris',
+    secondaryMuscles: ['Gluteus Maximus', 'Adductor Magnus', 'Erector Spinae'],
+    equipment: 'Barbell & Squat Rack',
+    difficulty: 'Advanced',
+    tempoDefault: '3-1-1-0',
+    substitutes: ['Hack Squat Machine', 'Pendulum Squat', 'Leg Press'],
+    instructions: 'Break at hips and knees simultaneously. Depth below parallel. Maintain neutral spine and chest elevation.'
+  },
+  {
+    id: 'ex-3',
+    name: 'Chest Supported T-Bar Row',
+    category: 'Back',
+    primaryMuscle: 'Latissimus Dorsi & Rhomboids',
+    secondaryMuscles: ['Rear Deltoids', 'Brachialis'],
+    equipment: 'T-Bar Row Station',
+    difficulty: 'Intermediate',
+    tempoDefault: '2-1-1-1',
+    substitutes: ['Chest Supported Dumbbell Row', 'Seal Row'],
+    instructions: 'Drive elbows back toward hips. Squeeze scapulae for 1 full second at peak contraction.'
+  },
+  {
+    id: 'ex-4',
+    name: 'Romanian Deadlift (RDL)',
+    category: 'Hamstrings',
+    primaryMuscle: 'Hamstrings & Glutes',
+    secondaryMuscles: ['Erector Spinae', 'Grip Force'],
+    equipment: 'Barbell / Dumbbells',
+    difficulty: 'Intermediate',
+    tempoDefault: '3-1-1-0',
+    substitutes: ['Single Leg RDL', 'Lying Leg Curl'],
+    instructions: 'Hinge back at hips keeping knees softly bent. Lower bar down shin line until hamstring stretch limit.'
+  },
+  {
+    id: 'ex-5',
+    name: 'Seated Lateral Raises',
+    category: 'Shoulders',
+    primaryMuscle: 'Lateral Deltoid',
+    secondaryMuscles: ['Upper Trapezius'],
+    equipment: 'Dumbbells',
+    difficulty: 'Beginner',
+    tempoDefault: '2-0-1-1',
+    substitutes: ['Cable Lateral Raise', 'Machine Shoulder Fly'],
+    instructions: 'Slight anterior torso lean. Lead with elbows to 90 degrees. Avoid swinging or momentum.'
+  }
+];
+
+export const MOCK_PROGRAM: WorkoutProgram = {
+  id: 'prog-hypertrophy-v3',
+  title: 'Apex Hypertrophy Block 2: Mechanical Tension Focus',
+  description: '12-Week undulating hypertrophy program optimized for intra-set fatigue management and velocity thresholds.',
+  targetGoal: 'Maximal Muscle Mass Gain',
+  durationWeeks: 12,
+  periodizationType: 'Daily Undulating (DUP)',
+  days: [
+    {
+      dayName: 'Day 1: Upper Power & Tension',
+      focus: 'Chest, Lat, Upper Back Mechanical Load',
+      isRestDay: false,
+      exercises: [
+        {
+          exerciseId: 'ex-1',
+          exerciseName: 'Barbell Incline Press',
+          notes: 'Keep shoulder blades depressed. Focus on upper chest tension.',
+          restSeconds: 180,
+          sets: [
+            { setNumber: 1, reps: 8, targetRpe: 7, weightKg: 90, completed: true, actualRpe: 7 },
+            { setNumber: 2, reps: 8, targetRpe: 8, weightKg: 95, completed: true, actualRpe: 8 },
+            { setNumber: 3, reps: 6, targetRpe: 9, weightKg: 100, completed: true, actualRpe: 9 },
+          ]
+        },
+        {
+          exerciseId: 'ex-3',
+          exerciseName: 'Chest Supported T-Bar Row',
+          notes: '1-second hard pause at peak contraction.',
+          restSeconds: 150,
+          sets: [
+            { setNumber: 1, reps: 10, targetRpe: 7, weightKg: 60, completed: true, actualRpe: 7 },
+            { setNumber: 2, reps: 10, targetRpe: 8, weightKg: 65, completed: true, actualRpe: 8 },
+            { setNumber: 3, reps: 8, targetRpe: 9, weightKg: 70, completed: true, actualRpe: 9 },
+          ]
+        },
+        {
+          exerciseId: 'ex-5',
+          exerciseName: 'Seated Lateral Raises',
+          notes: 'Strict form. No hip rocking.',
+          restSeconds: 90,
+          sets: [
+            { setNumber: 1, reps: 15, targetRpe: 8, weightKg: 14, completed: true, actualRpe: 8 },
+            { setNumber: 2, reps: 15, targetRpe: 9, weightKg: 14, completed: true, actualRpe: 9 },
+            { setNumber: 3, reps: 12, targetRpe: 10, weightKg: 16, completed: true, actualRpe: 10 },
+          ]
+        }
+      ]
+    },
+    {
+      dayName: 'Day 2: Lower Quad & Anterior Chain',
+      focus: 'Quadriceps, Adductors & Calves',
+      isRestDay: false,
+      exercises: [
+        {
+          exerciseId: 'ex-2',
+          exerciseName: 'Barbell Back Squat',
+          notes: 'Full depth. Drive through mid-foot.',
+          restSeconds: 180,
+          sets: [
+            { setNumber: 1, reps: 6, targetRpe: 7, weightKg: 120, completed: false },
+            { setNumber: 2, reps: 6, targetRpe: 8, weightKg: 130, completed: false },
+            { setNumber: 3, reps: 6, targetRpe: 9, weightKg: 135, completed: false },
+          ]
+        },
+        {
+          exerciseId: 'ex-4',
+          exerciseName: 'Romanian Deadlift (RDL)',
+          notes: 'Feel deep stretch in hamstrings.',
+          restSeconds: 150,
+          sets: [
+            { setNumber: 1, reps: 10, targetRpe: 8, weightKg: 110, completed: false },
+            { setNumber: 2, reps: 10, targetRpe: 8, weightKg: 115, completed: false },
+            { setNumber: 3, reps: 8, targetRpe: 9, weightKg: 120, completed: false },
+          ]
+        }
+      ]
+    },
+    {
+      dayName: 'Day 3: Active Bio-Recovery & Mobility',
+      focus: 'Zone 2 Cardio, Sauna & Soft Tissue Flush',
+      isRestDay: true,
+      exercises: []
+    }
+  ]
+};
+
+export const MOCK_FRANCHISES: FranchiseLocation[] = [
+  {
+    id: 'loc-1',
+    name: 'Apex Flagship Performance Hub',
+    city: 'Frankfurt am Main',
+    country: 'Germany',
+    coachesCount: 14,
+    activeClientsCount: 420,
+    monthlyRevenueUsd: 84000,
+    retentionRatePercent: 94.2,
+    complianceAveragePercent: 91.5,
+    managerName: 'Klaus Lindner'
+  },
+  {
+    id: 'loc-2',
+    name: 'Apex City HQ London',
+    city: 'London',
+    country: 'United Kingdom',
+    coachesCount: 22,
+    activeClientsCount: 680,
+    monthlyRevenueUsd: 142000,
+    retentionRatePercent: 92.8,
+    complianceAveragePercent: 88.9,
+    managerName: 'Gemma Sterling'
+  },
+  {
+    id: 'loc-3',
+    name: 'Apex Biotech Athletic Center',
+    city: 'Austin, TX',
+    country: 'USA',
+    coachesCount: 18,
+    activeClientsCount: 510,
+    monthlyRevenueUsd: 118000,
+    retentionRatePercent: 96.1,
+    complianceAveragePercent: 93.4,
+    managerName: 'Derek Vance'
+  }
+];
+
+export const MOCK_AI_RECOMMENDATIONS: AIRecommendation[] = [
+  {
+    id: 'rec-101',
+    athleteId: 'ath-1',
+    athleteName: 'Alex Rivera',
+    timestamp: '10 minutes ago',
+    category: 'Deload Auto-Trigger',
+    insight: 'WHOOP HRV dropped 12.8% below 14-day baseline (68ms vs 78ms) with ACWR at 1.48. System detects acute central nervous fatigue accumulation.',
+    suggestedAction: 'Reduce volume on Day 2 Barbell Back Squat by 1 working set and cap maximum RPE at 7.5.',
+    applied: false
+  },
+  {
+    id: 'rec-102',
+    athleteId: 'ath-3',
+    athleteName: 'Demetrius Thorne',
+    timestamp: '1 hour ago',
+    category: 'Injury Protocol',
+    insight: 'Reported L4-L5 Lumbar discomfort (8/10 soreness) after heavy deadlifts with sleep score 42%. High risk of acute spinal overload.',
+    suggestedAction: 'Swap Barbell Deadlift to Belt Squat / Iso-Lateral Hammer Row and trigger automated physical therapy mobility assignment.',
+    applied: true
+  },
+  {
+    id: 'rec-103',
+    athleteId: 'ath-2',
+    athleteName: 'Sarah Chen',
+    timestamp: '3 hours ago',
+    category: 'Nutrition Pivot',
+    insight: 'Metabolic rate estimation increased +180 kcal due to high active cardio expenditure (14,200 steps logged via Apple Health).',
+    suggestedAction: 'Add +35g carbohydrates (140 kcal) to post-workout nutrition window to preserve lean glycogen stores.',
+    applied: true
+  }
+];

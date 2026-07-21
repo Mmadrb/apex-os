@@ -1,0 +1,44 @@
+@import '@fontsource/vazirmatn/300.css';
+@import '@fontsource/vazirmatn/400.css';
+@import '@fontsource/vazirmatn/600.css';
+@import '@fontsource/vazirmatn/700.css';
+@import '@fontsource/vazirmatn/800.css';
+@import '@fontsource/vazirmatn/900.css';
+
+@import "tailwindcss";
+
+@layer base {
+  html[lang="fa"], [dir="rtl"] {
+    font-family: 'Vazirmatn', 'Vazir', 'Tahoma', system-ui, sans-serif !important;
+  }
+
+  body {
+    @apply bg-slate-950 text-slate-100 font-sans antialiased selection:bg-cyan-500 selection:text-slate-950;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+}
+
+.font-vazir {
+  font-family: 'Vazirmatn', 'Vazir', 'Tahoma', sans-serif !important;
+}
+
+/* Scrollbar and Touch Optimizations */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #06b6d4;
+}
+
+.touch-scroller {
+  -webkit-overflow-scrolling: touch;
+}
