@@ -1,5 +1,10 @@
 # ApexOS - AI Operating System for Human Performance
 
+## 🌐 Live Demo
+**View the Live Dashboard here:** [https://mmadrb.github.io/apex-os/](https://mmadrb.github.io/apex-os/)
+
+---
+
 ## About
 
 **ApexOS** is a sophisticated, bilingual (English & Persian) sports coaching and athlete management platform. Designed as an "AI Operating System for Human Performance," it provides coaches and sports scientists with a centralized hub for monitoring, analyzing, and optimizing athlete performance through real-time biometrics, motion analysis, and personalized training programs. This platform aims to empower sports professionals with data-driven insights to enhance athlete development, prevent injuries, and maximize performance potential.
