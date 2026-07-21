@@ -53,43 +53,33 @@ Full support for both **English (LTR)** and **Persian (RTL)**, including localiz
 
 ## ▶️ How to Run It
 
-To get ApexOS up and running on your local machine, follow these steps:
+Choose one of the following options to get ApexOS up and running on your local machine:
 
-### Prerequisites
-Ensure you have the following installed:
-- [Node.js](https://nodejs.org/) (Latest LTS version recommended)
-- A package manager: [pnpm](https://pnpm.io/) (recommended) or `npm`
+### Option A: Standard Development (Recommended for Developers)
+This method allows you to modify the code and see changes in real-time.
 
-### Installation and Setup
-1. **Clone the repository:**
+1. **Prerequisites:** Ensure you have [Node.js](https://nodejs.org/) installed.
+2. **Clone the repository:**
    ```bash
    git clone https://github.com/Mmadrb/apex-os.git
    cd apex-os
    ```
-2. **Install dependencies:**
+3. **Install dependencies:**
    ```bash
    npm install
    ```
+4. **Start Development Server:**
+   ```bash
+   npm run dev
+   ```
+   Open your browser at `http://localhost:5173`.
 
-### Development Mode
-To start the development server with hot-reloading:
-```bash
-npm run dev
-```
-This will typically open the application in your browser at `http://localhost:5173` (or a similar port).
+### Option B: Direct Execution (Easiest)
+Run the application directly without any complex setup or installation.
 
-### Production Build
-To build the project for production deployment:
-```bash
-npm run build
-```
-This command compiles and optimizes the application for deployment, placing the output in the `dist` directory.
-
-### Preview Production Build
-To locally preview the optimized production build:
-```bash
-npm run preview
-```
+1. **Clone or Download the repository.**
+2. **Open the `index.html` file** located in the root directory directly in your web browser (Chrome, Firefox, Edge, etc.).
+   - *Note: This version is a pre-compiled, single-file build that includes all necessary styles and scripts.*
 
 ---
 
