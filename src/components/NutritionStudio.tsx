@@ -150,6 +150,28 @@ export const NutritionStudio: React.FC<NutritionStudioProps> = ({
   const caloriesPercent = Math.min(Math.round((selectedAthlete.caloriesLogged / selectedAthlete.caloriesTarget) * 100), 100);
   const proteinPercent = Math.min(Math.round((selectedAthlete.proteinLoggedG / selectedAthlete.proteinTargetG) * 100), 100);
 
+  const personalizedMealPlan = isFa ? [
+    { title: 'صبحانه عملکردی', calories: 620, recipe: 'اوتمیل + ماست یونانی + موز + وی ایزوله', macro: 'P 42g • C 68g • F 14g' },
+    { title: 'ناهار ریکاوری', calories: 740, recipe: 'مرغ گریل + برنج + سبزیجات بخارپز + روغن زیتون', macro: 'P 58g • C 72g • F 18g' },
+    { title: 'شام کنترل‌شده', calories: 610, recipe: 'سالمون + سیب‌زمینی شیرین + سالاد سبز', macro: 'P 44g • C 48g • F 22g' },
+    { title: 'میان‌وعده', calories: 280, recipe: 'اسکایر + بادام + توت', macro: 'P 22g • C 18g • F 10g' }
+  ] : [
+    { title: 'Performance Breakfast', calories: 620, recipe: 'Oats + Greek yogurt + banana + whey isolate', macro: 'P 42g • C 68g • F 14g' },
+    { title: 'Recovery Lunch', calories: 740, recipe: 'Grilled chicken + rice + steamed vegetables + olive oil', macro: 'P 58g • C 72g • F 18g' },
+    { title: 'Controlled Dinner', calories: 610, recipe: 'Salmon + sweet potato + green salad', macro: 'P 44g • C 48g • F 22g' },
+    { title: 'Snack', calories: 280, recipe: 'Skyr + almonds + berries', macro: 'P 22g • C 18g • F 10g' }
+  ];
+
+  const dietRecipes = isFa ? [
+    { name: 'رپ مرغ کم‌چرب', calories: 410, note: 'مناسب بعد تمرین با پروتئین بالا و چربی کنترل‌شده' },
+    { name: 'کاسه سالمون و برنج', calories: 560, note: 'برای ریکاوری و تکمیل امگا-۳ و کربوهیدرات' },
+    { name: 'پارفه اسکایر و توت', calories: 240, note: 'میان‌وعده سبک با پروتئین بالا و فیبر مناسب' },
+  ] : [
+    { name: 'Lean Chicken Wrap', calories: 410, note: 'High-protein post-workout meal with controlled fats' },
+    { name: 'Salmon Rice Bowl', calories: 560, note: 'Supports recovery with omega-3 and smart carbohydrates' },
+    { name: 'Skyr Berry Parfait', calories: 240, note: 'Light snack with strong protein density and fiber' },
+  ];
+
   return (
     <div className="p-2 sm:p-4 lg:p-8 space-y-6 lg:space-y-8">
       
@@ -285,6 +307,53 @@ export const NutritionStudio: React.FC<NutritionStudioProps> = ({
           </div>
           <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
             <div className="bg-blue-500 h-full rounded-full" style={{ width: '86%' }} />
+          </div>
+        </div>
+      </div>
+
+      {/* Personalized Meal Plans & Diet Recipes */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+        <div className="xl:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-5">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <h3 className="font-bold text-white text-base">{isFa ? 'پلن غذایی شخصی‌سازی‌شده' : 'Personalized meal plan'}</h3>
+              <p className="text-xs text-slate-400 mt-1">{isFa ? 'برای هر وعده، کالری و ترکیب درشت‌مغذی مشخص شده است.' : 'Every meal includes calories and macro guidance.'}</p>
+            </div>
+            <span className="text-xs text-cyan-400 font-semibold">{isFa ? 'قابل پیگیری' : 'Trackable'}</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {personalizedMealPlan.map((meal) => (
+              <div key={meal.title} className="rounded-2xl border border-slate-800 bg-slate-950/60 p-4 space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="font-bold text-white text-sm">{meal.title}</div>
+                  <span className="px-2 py-1 rounded-lg bg-amber-500/10 text-amber-300 border border-amber-500/20 text-[10px] font-bold">
+                    {meal.calories} kcal
+                  </span>
+                </div>
+                <div className="text-xs text-slate-400 leading-relaxed">{meal.recipe}</div>
+                <div className="text-[11px] text-cyan-300 font-semibold">{meal.macro}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="xl:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-5">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <h3 className="font-bold text-white text-base">{isFa ? 'دستورهای غذایی رژیمی' : 'Diet-friendly recipes'}</h3>
+              <p className="text-xs text-slate-400 mt-1">{isFa ? 'دستورهای آماده با کالری مشخص برای استفاده مربی و ورزشکار.' : 'Ready-to-use recipes with clear calorie targets for coach and athlete.'}</p>
+            </div>
+          </div>
+          <div className="space-y-3">
+            {dietRecipes.map((recipe) => (
+              <div key={recipe.name} className="rounded-2xl border border-slate-800 bg-slate-950/60 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="font-bold text-white text-sm">{recipe.name}</div>
+                  <span className="text-[10px] font-bold text-emerald-300">{recipe.calories} kcal</span>
+                </div>
+                <div className="text-xs text-slate-400 mt-2 leading-relaxed">{recipe.note}</div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

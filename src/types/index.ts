@@ -19,6 +19,15 @@ export interface AthleteProfile {
   membershipTier: string;
   riskScore: 'Low' | 'Moderate' | 'High' | 'Critical';
   riskReason?: string;
+  affiliatedGyms?: string[];
+  previousCoaches?: string[];
+  healthProfile?: {
+    bloodType?: string;
+    allergies?: string[];
+    conditions?: string[];
+    emergencyContact?: string;
+    medicalClearance?: string;
+  };
   
   // Physical Metrics
   weightKg: number;
@@ -113,6 +122,10 @@ export interface AthleteProfile {
   activeStreakDays: number;
 }
 
+export type WorkoutType = 'abs' | 'everything' | 'cardio' | 'combat' | 'HIIT' | 'RPG fitness' | 'running' | 'strength' | 'stretching' | 'yoga';
+export type WorkoutDifficultyTier = 'light' | 'easy' | 'normal' | 'hard' | 'advanced';
+export type WorkoutEquipmentMode = 'no equipment' | 'with equipment';
+
 export interface Exercise {
   id: string;
   name: string;
@@ -120,9 +133,13 @@ export interface Exercise {
   primaryMuscle: string;
   secondaryMuscles: string[];
   equipment: string;
+  equipmentMode: WorkoutEquipmentMode;
+  trainingType: WorkoutType;
+  intensity: WorkoutDifficultyTier;
   difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
   tempoDefault: string;
   substitutes: string[];
+  caloriesPer10Min?: number;
   videoUrl?: string;
   instructions: string;
 }
