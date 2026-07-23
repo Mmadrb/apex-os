@@ -1,12 +1,13 @@
 import React from 'react';
-import { 
-  Heart, 
-  Zap, 
-  AlertTriangle, 
-  Activity, 
+import {
+  Heart,
+  Zap,
+  AlertTriangle,
+  Activity,
   ArrowUpRight,
   ArrowDownRight
 } from 'lucide-react';
+import { formatMetricNumber, formatPercent } from '../utils/formatters';
 
 interface StatCardsProps {
   avgHeartRateBpm: number;
@@ -35,14 +36,14 @@ export const StatCards: React.FC<StatCardsProps> = ({
             <Heart className="w-4 h-4 text-rose-400 fill-rose-500/20" /> {isFa ? 'میانگین ضربان قلب تیم' : 'Avg Heart Rate'}
           </span>
           <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold flex items-center gap-1">
-            <ArrowDownRight className="w-3 h-3" /> -۲.۴٪ {isFa ? 'بهبود' : 'vs yesterday'}
+            <ArrowDownRight className="w-3 h-3" /> -2.4% {isFa ? 'بهبود' : 'vs yesterday'}
           </span>
         </div>
 
-        <div className="flex items-baseline justify-between">
-          <div className="text-3xl font-black text-white font-mono">{avgHeartRateBpm} <span className="text-xs font-normal text-slate-400">bpm</span></div>
-          <span className="text-[10px] text-slate-500">{isFa ? 'محدوده استراحت: ۵۲-۶۴' : 'Resting: 52-64 bpm'}</span>
-        </div>
+          <div className="flex items-baseline justify-between gap-3">
+            <div className="text-3xl font-black text-white font-mono">{formatMetricNumber(avgHeartRateBpm, { maximumFractionDigits: 0 })} <span className="text-xs font-normal text-slate-400">bpm</span></div>
+            <span className="text-[10px] text-slate-500">Resting: 52-64 bpm</span>
+          </div>
 
         <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
           <div className="bg-rose-500 h-full rounded-full w-[62%]" />
@@ -56,14 +57,14 @@ export const StatCards: React.FC<StatCardsProps> = ({
             <Zap className="w-4 h-4 text-cyan-400" /> {isFa ? 'مسافت مسابقه / اسپیرینت' : 'Sprint Distance'}
           </span>
           <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold flex items-center gap-1">
-            <ArrowUpRight className="w-3 h-3" /> +۱۲.۵٪ {isFa ? 'افزایش توان' : 'power boost'}
+            <ArrowUpRight className="w-3 h-3" /> +12.5% {isFa ? 'افزایش توان' : 'power boost'}
           </span>
         </div>
 
-        <div className="flex items-baseline justify-between">
-          <div className="text-3xl font-black text-cyan-300 font-mono">{totalSprintKm} <span className="text-xs font-normal text-slate-400">km</span></div>
-          <span className="text-[10px] text-cyan-400/80">{isFa ? 'سرعت > ۲۲ km/h' : 'Speed > 22 km/h'}</span>
-        </div>
+          <div className="flex items-baseline justify-between gap-3">
+            <div className="text-3xl font-black text-cyan-300 font-mono">{formatMetricNumber(totalSprintKm)} <span className="text-xs font-normal text-slate-400">km</span></div>
+            <span className="text-[10px] text-cyan-300">Speed &gt; 22 km/h</span>
+          </div>
 
         <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
           <div className="bg-cyan-400 h-full rounded-full w-[78%]" />
@@ -83,10 +84,10 @@ export const StatCards: React.FC<StatCardsProps> = ({
           </span>
         </div>
 
-        <div className="flex items-baseline justify-between">
-          <div className="text-3xl font-black text-amber-300 font-mono">{acwrStrainRatio} <span className="text-xs font-normal text-slate-400">ratio</span></div>
-          <span className="text-[10px] text-slate-400">{isFa ? 'آستانه خطر: > ۱.۵' : 'Risk threshold > 1.5'}</span>
-        </div>
+          <div className="flex items-baseline justify-between gap-3">
+            <div className="text-3xl font-black text-amber-300 font-mono">{formatMetricNumber(acwrStrainRatio, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-xs font-normal text-slate-400">ratio</span></div>
+            <span className="text-[10px] text-slate-400">Risk threshold &gt; 1.5</span>
+          </div>
 
         <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
           <div className="bg-amber-400 h-full rounded-full" style={{ width: `${(acwrStrainRatio / 2) * 100}%` }} />
@@ -100,14 +101,14 @@ export const StatCards: React.FC<StatCardsProps> = ({
             <Activity className="w-4 h-4 text-emerald-400" /> {isFa ? 'شاخص آمادگی کل تیم' : 'Team Readiness'}
           </span>
           <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold flex items-center gap-1">
-            <ArrowUpRight className="w-3 h-3" /> +۴.۰٪ {isFa ? 'بهبود کیفیت خواب' : 'recovery boost'}
+            <ArrowUpRight className="w-3 h-3" /> +4.0% {isFa ? 'بهبود کیفیت خواب' : 'recovery boost'}
           </span>
         </div>
 
-        <div className="flex items-baseline justify-between">
-          <div className="text-3xl font-black text-emerald-300 font-mono">{teamReadinessPercent}٪</div>
-          <span className="text-[10px] text-emerald-400 font-semibold">{isFa ? 'آماده برای مسابقه' : 'Match Ready'}</span>
-        </div>
+          <div className="flex items-baseline justify-between gap-3">
+            <div className="text-3xl font-black text-emerald-300 font-mono">{formatPercent(teamReadinessPercent)}</div>
+            <span className="text-[10px] text-emerald-400 font-semibold">{isFa ? 'آماده برای مسابقه' : 'Match Ready'}</span>
+          </div>
 
         <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
           <div className="bg-emerald-400 h-full rounded-full" style={{ width: `${teamReadinessPercent}%` }} />

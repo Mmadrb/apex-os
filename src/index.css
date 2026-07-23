@@ -1,13 +1,15 @@
-@import '@fontsource/vazirmatn/300.css';
 @import '@fontsource/vazirmatn/400.css';
 @import '@fontsource/vazirmatn/600.css';
 @import '@fontsource/vazirmatn/700.css';
-@import '@fontsource/vazirmatn/800.css';
-@import '@fontsource/vazirmatn/900.css';
 
 @import "tailwindcss";
 
 @layer base {
+  html {
+    color-scheme: dark;
+    scroll-behavior: smooth;
+  }
+
   html[lang="fa"], [dir="rtl"] {
     font-family: 'Vazirmatn', 'Vazir', 'Tahoma', system-ui, sans-serif !important;
   }
@@ -17,10 +19,55 @@
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
   }
+
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    @apply outline-none;
+  }
+
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    box-shadow: 0 0 0 2px rgba(8, 145, 178, 0.95), 0 0 0 4px rgba(2, 6, 23, 0.95);
+    border-radius: 0.9rem;
+  }
 }
 
 .font-vazir {
   font-family: 'Vazirmatn', 'Vazir', 'Tahoma', sans-serif !important;
+}
+
+.skip-link {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 80;
+  transform: translateY(-200%);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(34, 211, 238, 0.35);
+  background: rgba(2, 6, 23, 0.96);
+  color: #e2e8f0;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  transition: transform 0.2s ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+.text-slate-400 {
+  color: #cbd5e1 !important;
 }
 
 /* Scrollbar and Touch Optimizations */
@@ -41,4 +88,25 @@
 
 .touch-scroller {
   -webkit-overflow-scrolling: touch;
+}
+
+@keyframes softEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-soft-enter {
+  animation: softEnter 0.35s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-soft-enter {
+    animation: none;
+  }
 }

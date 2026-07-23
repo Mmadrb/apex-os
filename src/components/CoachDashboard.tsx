@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import type { AthleteProfile, AIRecommendation } from '../types';
+import type { AppTab } from '../utils/formatters';
 import {
   Users,
   Activity,
@@ -26,7 +27,7 @@ interface CoachDashboardProps {
   onSelectAthlete: (athlete: AthleteProfile) => void;
   aiRecommendations: AIRecommendation[];
   onApplyAIRecommendation: (recId: string) => void;
-  onNavigateTab: (tab: string) => void;
+  onNavigateTab: (tab: AppTab) => void;
   onAddAthlete: (payload: { name: string; goal: string; affiliatedGym: string; previousCoach: string }) => void;
   onAssignQuickPlan: (templateId: 'strength' | 'conditioning' | 'mobility') => void;
   lang?: 'en' | 'fa';

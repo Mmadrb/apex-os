@@ -1,47 +1,76 @@
-import { useState, useEffect } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { Sidebar } from './components/Sidebar';
 import { TopHeader } from './components/TopHeader';
-import { StatCards } from './components/StatCards';
-import { ActiveAlerts } from './components/ActiveAlerts';
-import { StaminaChart } from './components/StaminaChart';
-import { RosterGrid } from './components/RosterGrid';
-import { BiometricCalibrator } from './components/BiometricCalibrator';
-import { CoachDashboard } from './components/CoachDashboard';
-import { WorkoutBuilder } from './components/WorkoutBuilder';
-import { NutritionStudio } from './components/NutritionStudio';
-import { VisionKinematics } from './components/VisionKinematics';
-import { BiometricsLab } from './components/BiometricsLab';
-import { Athlete360Profile } from './components/Athlete360Profile';
-import { AthleteMobileSim } from './components/AthleteMobileSim';
-
-import { 
-  MOCK_ATHLETES, 
-  EXERCISE_DATABASE, 
-  MOCK_PROGRAM, 
-  MOCK_AI_RECOMMENDATIONS 
-} from './data/mockData';
-
+import { RouteLoading } from './components/RouteLoading';
+import { CommandPalette } from './components/CommandPalette';
+import { BrandStudio } from './components/BrandStudio';
 import {
-  MOCK_ATHLETES_FA,
+  EXERCISE_DATABASE,
+  MOCK_AI_RECOMMENDATIONS,
+  MOCK_ATHLETES,
+  MOCK_PROGRAM,
+} from './data/mockData';
+import {
   EXERCISE_DATABASE_FA,
+  MOCK_AI_RECOMMENDATIONS_FA,
+  MOCK_ATHLETES_FA,
   MOCK_PROGRAM_FA,
-  MOCK_AI_RECOMMENDATIONS_FA
 } from './data/mockDataFa';
+import type { AIRecommendation, AthleteProfile, WorkoutProgram } from './types';
+import { getPathFromTab, getTabFromPath, type AppTab, type RoleView } from './utils/formatters';
+import { DEFAULT_BRAND, type BrandConfig } from './utils/branding';
 
-import type { AthleteProfile, WorkoutProgram, AIRecommendation } from './types';
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const AthletesPage = lazy(() => import('./pages/AthletesPage'));
+const MedicalPage = lazy(() => import('./pages/MedicalPage'));
+const MotionPage = lazy(() => import('./pages/MotionPage'));
+const WorkoutsPage = lazy(() => import('./pages/WorkoutsPage'));
+const NutritionPage = lazy(() => import('./pages/NutritionPage'));
+const Profile360Page = lazy(() => import('./pages/Profile360Page'));
+const AthleteDashboardPage = lazy(() => import('./pages/AthleteDashboardPage'));
+const BiometricCalibrator = lazy(() =>
+  import('./components/BiometricCalibrator').then((module) => ({ default: module.BiometricCalibrator }))
+);
+
+const ROLE_STORAGE_KEY = 'apexos-role-view';
+const BRAND_STORAGE_KEY = 'apexos-brand-config';
 
 export function App() {
-  const [lang, setLang] = useState<'en' | 'fa'>('fa'); // Default Persian
-  const [activeTab, setActiveTab] = useState<string>('coach');
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const [lang, setLang] = useState<'en' | 'fa'>('fa');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
   const [globalSearchTerm, setGlobalSearchTerm] = useState<string>('');
+  const [roleView, setRoleView] = useState<RoleView>(() => {
+    if (typeof window === 'undefined') return 'coach';
+    const saved = window.localStorage.getItem(ROLE_STORAGE_KEY);
+    return saved === 'coach' || saved === 'athlete' || saved === 'nutrition' || saved === 'medical' ? saved : 'coach';
+  });
+  const [brand, setBrand] = useState<BrandConfig>(() => {
+    if (typeof window === 'undefined') return DEFAULT_BRAND;
+    try {
+      const raw = window.localStorage.getItem(BRAND_STORAGE_KEY);
+      return raw ? { ...DEFAULT_BRAND, ...(JSON.parse(raw) as Partial<BrandConfig>) } : DEFAULT_BRAND;
+    } catch {
+      return DEFAULT_BRAND;
+    }
+  });
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isBrandStudioOpen, setIsBrandStudioOpen] = useState(false);
 
   const isFa = lang === 'fa';
+  const activeTab = getTabFromPath(location.pathname);
 
   const initialAthletes = isFa ? MOCK_ATHLETES_FA : MOCK_ATHLETES;
   const exerciseDb = isFa ? EXERCISE_DATABASE_FA : EXERCISE_DATABASE;
   const initialProgram = isFa ? MOCK_PROGRAM_FA : MOCK_PROGRAM;
-  const initialAiRecs = isFa ? MOCK_AI_RECOMMENDATIONS_FA : MOCK_AI_RECOMMENDATIONS;
+  const initialAiRecs = (isFa ? MOCK_AI_RECOMMENDATIONS_FA : MOCK_AI_RECOMMENDATIONS).map((recommendation) => ({
+    ...recommendation,
+    reviewed: recommendation.reviewed ?? recommendation.applied,
+  }));
 
   const [athletes, setAthletes] = useState<AthleteProfile[]>(initialAthletes);
   const [selectedAthlete, setSelectedAthlete] = useState<AthleteProfile>(initialAthletes[0]);
@@ -55,18 +84,90 @@ export function App() {
     setAthletes(newAthletes);
     setSelectedAthlete(newAthletes[0]);
     setProgram(isFa ? MOCK_PROGRAM_FA : MOCK_PROGRAM);
-    setAiRecommendations(isFa ? MOCK_AI_RECOMMENDATIONS_FA : MOCK_AI_RECOMMENDATIONS);
-  }, [lang]);
+    setAiRecommendations(
+      (isFa ? MOCK_AI_RECOMMENDATIONS_FA : MOCK_AI_RECOMMENDATIONS).map((recommendation) => ({
+        ...recommendation,
+        reviewed: recommendation.reviewed ?? recommendation.applied,
+      }))
+    );
+  }, [isFa, lang]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem(ROLE_STORAGE_KEY, roleView);
+  }, [roleView]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem(BRAND_STORAGE_KEY, JSON.stringify(brand));
+  }, [brand]);
+
+  useEffect(() => {
+    const applyResponsiveSidebarState = () => {
+      const width = window.innerWidth;
+      setIsSidebarCollapsed(width < 1024);
+      if (width >= 768) {
+        setIsMobileSidebarOpen(false);
+      }
+    };
+
+    applyResponsiveSidebarState();
+    window.addEventListener('resize', applyResponsiveSidebarState);
+    return () => window.removeEventListener('resize', applyResponsiveSidebarState);
+  }, []);
+
+  useEffect(() => {
+    setIsMobileSidebarOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const isModifier = event.metaKey || event.ctrlKey;
+      if (isModifier && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        setIsCommandPaletteOpen(true);
+      }
+      if (event.key === 'Escape') {
+        setIsCommandPaletteOpen(false);
+        setIsBrandStudioOpen(false);
+      }
+      if (isModifier && event.key.toLowerCase() === 'b') {
+        event.preventDefault();
+        setIsBrandStudioOpen(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const handleNavigateTab = (tab: AppTab) => {
+    navigate(getPathFromTab(tab));
+  };
 
   const handleUpdateAthlete = (updated: AthleteProfile) => {
     setSelectedAthlete(updated);
-    setAthletes(prev => prev.map(a => (a.id === updated.id ? updated : a)));
+    setAthletes((prev) => prev.map((athlete) => (athlete.id === updated.id ? updated : athlete)));
   };
 
   const handleApplyAIRecommendation = (recId: string) => {
-    setAiRecommendations(prev =>
-      prev.map(r => (r.id === recId ? { ...r, applied: true } : r))
+    setAiRecommendations((prev) =>
+      prev.map((recommendation) =>
+        recommendation.id === recId ? { ...recommendation, applied: true, reviewed: true } : recommendation
+      )
     );
+  };
+
+  const handleReviewAIRecommendation = (recId: string) => {
+    setAiRecommendations((prev) =>
+      prev.map((recommendation) =>
+        recommendation.id === recId ? { ...recommendation, reviewed: true } : recommendation
+      )
+    );
+  };
+
+  const handleReviewAllAIRecommendations = () => {
+    setAiRecommendations((prev) => prev.map((recommendation) => ({ ...recommendation, reviewed: true })));
   };
 
   const handleUpdateProgram = (newProg: WorkoutProgram) => {
@@ -149,7 +250,12 @@ export function App() {
         flaggedMarkers: [],
       },
       supplements: [
-        { name: isFa ? 'پروتئین وی' : 'Whey Protein', dosage: isFa ? '۳۰ گرم' : '30g', timing: isFa ? 'بعد تمرین' : 'Post-workout', status: 'Pending' },
+        {
+          name: isFa ? 'پروتئین وی' : 'Whey Protein',
+          dosage: isFa ? '۳۰ گرم' : '30g',
+          timing: isFa ? 'بعد تمرین' : 'Post-workout',
+          status: 'Pending',
+        },
       ],
       medications: [],
       injuries: [],
@@ -177,16 +283,28 @@ export function App() {
             focus: isFa ? 'سینه، سرشانه و سه‌سر' : 'Chest, shoulders, triceps',
             isRestDay: false,
             exercises: [
-              { exerciseId: 'ex-1', exerciseName: isFa ? 'پرس بالا سینه هالتر' : 'Barbell Incline Press', notes: isFa ? 'قدرت پایه' : 'Foundational strength', restSeconds: 120, sets: [
-                { setNumber: 1, reps: 8, targetRpe: 7, weightKg: 60, completed: false },
-                { setNumber: 2, reps: 8, targetRpe: 8, weightKg: 65, completed: false },
-                { setNumber: 3, reps: 6, targetRpe: 8.5, weightKg: 70, completed: false },
-              ] },
-              { exerciseId: 'ex-5', exerciseName: isFa ? 'نشر جانب نشسته' : 'Seated Lateral Raises', notes: isFa ? 'کنترل کامل تمپو' : 'Controlled tempo', restSeconds: 75, sets: [
-                { setNumber: 1, reps: 15, targetRpe: 7, weightKg: 8, completed: false },
-                { setNumber: 2, reps: 15, targetRpe: 8, weightKg: 8, completed: false },
-                { setNumber: 3, reps: 12, targetRpe: 8.5, weightKg: 10, completed: false },
-              ] },
+              {
+                exerciseId: 'ex-1',
+                exerciseName: isFa ? 'پرس بالا سینه هالتر' : 'Barbell Incline Press',
+                notes: isFa ? 'قدرت پایه' : 'Foundational strength',
+                restSeconds: 120,
+                sets: [
+                  { setNumber: 1, reps: 8, targetRpe: 7, weightKg: 60, completed: false },
+                  { setNumber: 2, reps: 8, targetRpe: 8, weightKg: 65, completed: false },
+                  { setNumber: 3, reps: 6, targetRpe: 8.5, weightKg: 70, completed: false },
+                ],
+              },
+              {
+                exerciseId: 'ex-5',
+                exerciseName: isFa ? 'نشر جانب نشسته' : 'Seated Lateral Raises',
+                notes: isFa ? 'کنترل کامل تمپو' : 'Controlled tempo',
+                restSeconds: 75,
+                sets: [
+                  { setNumber: 1, reps: 15, targetRpe: 7, weightKg: 8, completed: false },
+                  { setNumber: 2, reps: 15, targetRpe: 8, weightKg: 8, completed: false },
+                  { setNumber: 3, reps: 12, targetRpe: 8.5, weightKg: 10, completed: false },
+                ],
+              },
             ],
           },
           {
@@ -194,16 +312,28 @@ export function App() {
             focus: isFa ? 'چهارسر، همسترینگ و سرینی' : 'Quads, hamstrings, glutes',
             isRestDay: false,
             exercises: [
-              { exerciseId: 'ex-2', exerciseName: isFa ? 'اسکوات پا هالتر از پشت' : 'Barbell Back Squat', notes: isFa ? 'فشار پیشرونده' : 'Progressive loading', restSeconds: 150, sets: [
-                { setNumber: 1, reps: 6, targetRpe: 7, weightKg: 80, completed: false },
-                { setNumber: 2, reps: 6, targetRpe: 8, weightKg: 85, completed: false },
-                { setNumber: 3, reps: 5, targetRpe: 8.5, weightKg: 90, completed: false },
-              ] },
-              { exerciseId: 'ex-4', exerciseName: isFa ? 'ددلیفت رومانیایی' : 'Romanian Deadlift (RDL)', notes: isFa ? 'تمرکز بر زنجیره خلفی' : 'Posterior chain focus', restSeconds: 120, sets: [
-                { setNumber: 1, reps: 10, targetRpe: 7, weightKg: 70, completed: false },
-                { setNumber: 2, reps: 10, targetRpe: 8, weightKg: 75, completed: false },
-                { setNumber: 3, reps: 8, targetRpe: 8.5, weightKg: 80, completed: false },
-              ] },
+              {
+                exerciseId: 'ex-2',
+                exerciseName: isFa ? 'اسکوات پا هالتر از پشت' : 'Barbell Back Squat',
+                notes: isFa ? 'فشار پیشرونده' : 'Progressive loading',
+                restSeconds: 150,
+                sets: [
+                  { setNumber: 1, reps: 6, targetRpe: 7, weightKg: 80, completed: false },
+                  { setNumber: 2, reps: 6, targetRpe: 8, weightKg: 85, completed: false },
+                  { setNumber: 3, reps: 5, targetRpe: 8.5, weightKg: 90, completed: false },
+                ],
+              },
+              {
+                exerciseId: 'ex-4',
+                exerciseName: isFa ? 'ددلیفت رومانیایی' : 'Romanian Deadlift (RDL)',
+                notes: isFa ? 'تمرکز بر زنجیره خلفی' : 'Posterior chain focus',
+                restSeconds: 120,
+                sets: [
+                  { setNumber: 1, reps: 10, targetRpe: 7, weightKg: 70, completed: false },
+                  { setNumber: 2, reps: 10, targetRpe: 8, weightKg: 75, completed: false },
+                  { setNumber: 3, reps: 8, targetRpe: 8.5, weightKg: 80, completed: false },
+                ],
+              },
             ],
           },
           {
@@ -211,11 +341,17 @@ export function App() {
             focus: isFa ? 'پشت، بازو و گیرش' : 'Back, biceps, grip',
             isRestDay: false,
             exercises: [
-              { exerciseId: 'ex-3', exerciseName: isFa ? 'زیربغل تی بار سینه تکیه‌گاه' : 'Chest Supported T-Bar Row', notes: isFa ? 'مکث در اوج' : 'Pause at peak', restSeconds: 120, sets: [
-                { setNumber: 1, reps: 10, targetRpe: 7, weightKg: 50, completed: false },
-                { setNumber: 2, reps: 10, targetRpe: 8, weightKg: 55, completed: false },
-                { setNumber: 3, reps: 8, targetRpe: 8.5, weightKg: 60, completed: false },
-              ] },
+              {
+                exerciseId: 'ex-3',
+                exerciseName: isFa ? 'زیربغل تی بار سینه تکیه‌گاه' : 'Chest Supported T-Bar Row',
+                notes: isFa ? 'مکث در اوج' : 'Pause at peak',
+                restSeconds: 120,
+                sets: [
+                  { setNumber: 1, reps: 10, targetRpe: 7, weightKg: 50, completed: false },
+                  { setNumber: 2, reps: 10, targetRpe: 8, weightKg: 55, completed: false },
+                  { setNumber: 3, reps: 8, targetRpe: 8.5, weightKg: 60, completed: false },
+                ],
+              },
             ],
           },
         ],
@@ -233,11 +369,17 @@ export function App() {
             focus: isFa ? 'هوازی پایه' : 'Base conditioning',
             isRestDay: false,
             exercises: [
-              { exerciseId: 'ex-11', exerciseName: isFa ? 'طناب‌زدن تناوبی هوازی' : 'Jump Rope Aerobic Intervals', notes: isFa ? 'ریتم ثابت' : 'Steady rhythm', restSeconds: 45, sets: [
-                { setNumber: 1, reps: 10, targetRpe: 6, weightKg: 0, completed: false },
-                { setNumber: 2, reps: 10, targetRpe: 6.5, weightKg: 0, completed: false },
-                { setNumber: 3, reps: 8, targetRpe: 7, weightKg: 0, completed: false },
-              ] },
+              {
+                exerciseId: 'ex-11',
+                exerciseName: isFa ? 'طناب‌زدن تناوبی هوازی' : 'Jump Rope Aerobic Intervals',
+                notes: isFa ? 'ریتم ثابت' : 'Steady rhythm',
+                restSeconds: 45,
+                sets: [
+                  { setNumber: 1, reps: 10, targetRpe: 6, weightKg: 0, completed: false },
+                  { setNumber: 2, reps: 10, targetRpe: 6.5, weightKg: 0, completed: false },
+                  { setNumber: 3, reps: 8, targetRpe: 7, weightKg: 0, completed: false },
+                ],
+              },
             ],
           },
           {
@@ -245,11 +387,17 @@ export function App() {
             focus: isFa ? 'توان بی‌هوازی' : 'Anaerobic power',
             isRestDay: false,
             exercises: [
-              { exerciseId: 'ex-15', exerciseName: isFa ? 'تکرارهای دو سرعتی تناوبی' : 'Sprint Interval Repeats', notes: isFa ? 'شدت بالا' : 'High intensity', restSeconds: 60, sets: [
-                { setNumber: 1, reps: 8, targetRpe: 7.5, weightKg: 0, completed: false },
-                { setNumber: 2, reps: 8, targetRpe: 8, weightKg: 0, completed: false },
-                { setNumber: 3, reps: 6, targetRpe: 8.5, weightKg: 0, completed: false },
-              ] },
+              {
+                exerciseId: 'ex-15',
+                exerciseName: isFa ? 'تکرارهای دو سرعتی تناوبی' : 'Sprint Interval Repeats',
+                notes: isFa ? 'شدت بالا' : 'High intensity',
+                restSeconds: 60,
+                sets: [
+                  { setNumber: 1, reps: 8, targetRpe: 7.5, weightKg: 0, completed: false },
+                  { setNumber: 2, reps: 8, targetRpe: 8, weightKg: 0, completed: false },
+                  { setNumber: 3, reps: 6, targetRpe: 8.5, weightKg: 0, completed: false },
+                ],
+              },
             ],
           },
           {
@@ -257,11 +405,17 @@ export function App() {
             focus: isFa ? 'کالری‌سوزی و استقامت' : 'Calorie burn and endurance',
             isRestDay: false,
             exercises: [
-              { exerciseId: 'ex-30', exerciseName: isFa ? 'خرس‌روی + لانج معکوس' : 'Bear Crawl + Reverse Lunge Flow', notes: isFa ? 'کنترل مرکزی بدن' : 'Core control', restSeconds: 60, sets: [
-                { setNumber: 1, reps: 12, targetRpe: 7, weightKg: 0, completed: false },
-                { setNumber: 2, reps: 12, targetRpe: 7.5, weightKg: 0, completed: false },
-                { setNumber: 3, reps: 10, targetRpe: 8, weightKg: 0, completed: false },
-              ] },
+              {
+                exerciseId: 'ex-30',
+                exerciseName: isFa ? 'خرس‌روی + لانج معکوس' : 'Bear Crawl + Reverse Lunge Flow',
+                notes: isFa ? 'کنترل مرکزی بدن' : 'Core control',
+                restSeconds: 60,
+                sets: [
+                  { setNumber: 1, reps: 12, targetRpe: 7, weightKg: 0, completed: false },
+                  { setNumber: 2, reps: 12, targetRpe: 7.5, weightKg: 0, completed: false },
+                  { setNumber: 3, reps: 10, targetRpe: 8, weightKg: 0, completed: false },
+                ],
+              },
             ],
           },
         ],
@@ -279,11 +433,17 @@ export function App() {
             focus: isFa ? 'لگن و سرشانه' : 'Hips and shoulders',
             isRestDay: false,
             exercises: [
-              { exerciseId: 'ex-20', exerciseName: isFa ? 'فلوی موبیلیتی با کش مقاومتی' : 'Resistance Band Mobility Flow', notes: isFa ? 'دامنه کنترل‌شده' : 'Controlled mobility', restSeconds: 30, sets: [
-                { setNumber: 1, reps: 45, targetRpe: 4, weightKg: 0, completed: false },
-                { setNumber: 2, reps: 45, targetRpe: 4, weightKg: 0, completed: false },
-                { setNumber: 3, reps: 60, targetRpe: 5, weightKg: 0, completed: false },
-              ] },
+              {
+                exerciseId: 'ex-20',
+                exerciseName: isFa ? 'فلوی موبیلیتی با کش مقاومتی' : 'Resistance Band Mobility Flow',
+                notes: isFa ? 'دامنه کنترل‌شده' : 'Controlled mobility',
+                restSeconds: 30,
+                sets: [
+                  { setNumber: 1, reps: 45, targetRpe: 4, weightKg: 0, completed: false },
+                  { setNumber: 2, reps: 45, targetRpe: 4, weightKg: 0, completed: false },
+                  { setNumber: 3, reps: 60, targetRpe: 5, weightKg: 0, completed: false },
+                ],
+              },
             ],
           },
           {
@@ -291,11 +451,17 @@ export function App() {
             focus: isFa ? 'فلکسور ران و ستون فقرات' : 'Hip flexors and spine',
             isRestDay: false,
             exercises: [
-              { exerciseId: 'ex-21', exerciseName: isFa ? 'کشش زانوزده فلکسور ران' : 'Kneeling Hip Flexor Stretch', notes: isFa ? 'بازدم طولانی' : 'Long exhales', restSeconds: 20, sets: [
-                { setNumber: 1, reps: 45, targetRpe: 4, weightKg: 0, completed: false },
-                { setNumber: 2, reps: 45, targetRpe: 4, weightKg: 0, completed: false },
-                { setNumber: 3, reps: 60, targetRpe: 4.5, weightKg: 0, completed: false },
-              ] },
+              {
+                exerciseId: 'ex-21',
+                exerciseName: isFa ? 'کشش زانوزده فلکسور ران' : 'Kneeling Hip Flexor Stretch',
+                notes: isFa ? 'بازدم طولانی' : 'Long exhales',
+                restSeconds: 20,
+                sets: [
+                  { setNumber: 1, reps: 45, targetRpe: 4, weightKg: 0, completed: false },
+                  { setNumber: 2, reps: 45, targetRpe: 4, weightKg: 0, completed: false },
+                  { setNumber: 3, reps: 60, targetRpe: 4.5, weightKg: 0, completed: false },
+                ],
+              },
             ],
           },
           {
@@ -303,11 +469,17 @@ export function App() {
             focus: isFa ? 'یوگا و آرام‌سازی' : 'Yoga and recovery',
             isRestDay: false,
             exercises: [
-              { exerciseId: 'ex-22', exerciseName: isFa ? 'فلوی موبیلیتی سلام بر خورشید' : 'Sun Salutation Mobility Flow', notes: isFa ? 'حرکت همراه با تنفس' : 'Move with breath', restSeconds: 20, sets: [
-                { setNumber: 1, reps: 45, targetRpe: 4, weightKg: 0, completed: false },
-                { setNumber: 2, reps: 45, targetRpe: 4.5, weightKg: 0, completed: false },
-                { setNumber: 3, reps: 60, targetRpe: 5, weightKg: 0, completed: false },
-              ] },
+              {
+                exerciseId: 'ex-22',
+                exerciseName: isFa ? 'فلوی موبیلیتی سلام بر خورشید' : 'Sun Salutation Mobility Flow',
+                notes: isFa ? 'حرکت همراه با تنفس' : 'Move with breath',
+                restSeconds: 20,
+                sets: [
+                  { setNumber: 1, reps: 45, targetRpe: 4, weightKg: 0, completed: false },
+                  { setNumber: 2, reps: 45, targetRpe: 4.5, weightKg: 0, completed: false },
+                  { setNumber: 3, reps: 60, targetRpe: 5, weightKg: 0, completed: false },
+                ],
+              },
             ],
           },
         ],
@@ -315,173 +487,214 @@ export function App() {
     };
 
     setProgram(templates[templateId]);
+    navigate(getPathFromTab('builder'));
   };
+
+  const downloadFile = (filename: string, content: string, mimeType: string) => {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = filename;
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportAthletesCsv = () => {
+    const header = ['Athlete', 'Goal', 'RecoveryScore', 'ACWR', 'WorkoutCompliance', 'NutritionCompliance', 'Risk'];
+    const rows = athletes.map((athlete) => [
+      athlete.name,
+      athlete.goal,
+      athlete.wearableSync.recoveryScore,
+      athlete.wearableSync.acwrRatio,
+      athlete.workoutCompliancePercent,
+      athlete.nutritionCompliancePercent,
+      athlete.riskScore,
+    ]);
+    const csv = [header, ...rows]
+      .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+    downloadFile('apexos-athletes-report.csv', csv, 'text/csv;charset=utf-8;');
+  };
+
+  const handleExportExecutiveReport = () => {
+    const report = [
+      `# ${brand.productName} Executive Report`,
+      '',
+      `- Organization: ${brand.organizationName}`,
+      `- Tagline: ${brand.tagline}`,
+      `- Role View: ${roleView}`,
+      `- Focus Athlete: ${selectedAthlete.name}`,
+      `- Alerts Pending: ${aiRecommendations.filter((item) => !item.applied).length}`,
+      '',
+      '## Team Snapshot',
+      ...athletes.map(
+        (athlete) =>
+          `- ${athlete.name}: Recovery ${athlete.wearableSync.recoveryScore}%, ACWR ${athlete.wearableSync.acwrRatio}, Workout ${athlete.workoutCompliancePercent}%, Nutrition ${athlete.nutritionCompliancePercent}%`
+      ),
+      '',
+      '## Active Alerts',
+      ...aiRecommendations.map(
+        (alert) =>
+          `- ${alert.athleteName} | ${alert.category} | ${alert.suggestedAction} | Applied: ${alert.applied ? 'Yes' : 'No'}`
+      ),
+    ].join('\n');
+    downloadFile('apexos-executive-report.md', report, 'text/markdown;charset=utf-8;');
+  };
+
+  const shouldShowBiometricCalibrator = ['coach', 'biometrics', 'profile360', 'mobile_sim'].includes(activeTab);
 
   return (
     <div className={`min-h-screen bg-slate-950 text-slate-100 flex font-sans antialiased ${isFa ? 'font-vazir' : ''}`}>
-      
-      {/* 1. Sidebar Navigation */}
+      <a href="#main-content" className="skip-link">
+        {isFa ? 'پرش به محتوای اصلی' : 'Skip to main content'}
+      </a>
+
       <Sidebar
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={handleNavigateTab}
         isCollapsed={isSidebarCollapsed}
         setIsCollapsed={setIsSidebarCollapsed}
-        alertCount={aiRecommendations.filter(r => !r.applied).length}
+        isMobileOpen={isMobileSidebarOpen}
+        setIsMobileOpen={setIsMobileSidebarOpen}
+        alertCount={aiRecommendations.filter((item) => !item.reviewed).length}
         lang={lang}
+        brand={brand}
       />
 
-      {/* 2. Main Workspace Layout Area */}
       <div className="flex-1 flex flex-col min-w-0 min-h-screen">
-        
-        {/* Top Header */}
         <TopHeader
           searchTerm={globalSearchTerm}
           setSearchTerm={setGlobalSearchTerm}
           aiRecommendations={aiRecommendations}
           selectedAthleteName={selectedAthlete.name}
+          lastSynced={selectedAthlete.wearableSync.lastSynced}
+          activeTab={activeTab}
+          roleView={roleView}
           lang={lang}
+          brand={brand}
           setLang={setLang}
+          setRoleView={setRoleView}
+          onReviewRecommendation={handleReviewAIRecommendation}
+          onReviewAllRecommendations={handleReviewAllAIRecommendations}
+          onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+          onOpenBrandStudio={() => setIsBrandStudioOpen(true)}
+          onToggleMobileSidebar={() => setIsMobileSidebarOpen((prev) => !prev)}
+          isMobileSidebarOpen={isMobileSidebarOpen}
         />
 
-        {/* Main Content Dashboard Canvas Area */}
-        <main className="flex-1 p-3 sm:p-6 lg:p-8 space-y-6 max-w-7xl w-full mx-auto">
-          
-          {/* Always Present Live Biometric Calibrator */}
-          <BiometricCalibrator
-            athlete={selectedAthlete}
-            onUpdateAthlete={handleUpdateAthlete}
-            lang={lang}
-          />
+        <CommandPalette
+          open={isCommandPaletteOpen}
+          onClose={() => setIsCommandPaletteOpen(false)}
+          lang={lang}
+          onNavigateTab={handleNavigateTab}
+          onSetRoleView={setRoleView}
+          onExportExecutiveReport={handleExportExecutiveReport}
+          onExportAthletesCsv={handleExportAthletesCsv}
+          onOpenBrandStudio={() => setIsBrandStudioOpen(true)}
+        />
 
-          {/* Tab 1: Main Overview Dashboard (Combines Stat Cards, Active Alerts & Stamina Chart) */}
-          {activeTab === 'coach' && (
-            <div className="space-y-6">
-              
-              {/* Top Row: Stat Cards Metrics */}
-              <StatCards
-                avgHeartRateBpm={58}
-                totalSprintKm={14.8}
-                acwrStrainRatio={selectedAthlete.wearableSync.acwrRatio}
-                teamReadinessPercent={88}
-                lang={lang}
+        <BrandStudio
+          open={isBrandStudioOpen}
+          onClose={() => setIsBrandStudioOpen(false)}
+          brand={brand}
+          onChange={setBrand}
+          lang={lang}
+        />
+
+        <main id="main-content" className="flex-1 p-3 sm:p-6 lg:p-8 space-y-6 max-w-7xl w-full mx-auto" aria-live="polite">
+          {shouldShowBiometricCalibrator && (
+            <Suspense fallback={<RouteLoading lang={lang} />}>
+              <BiometricCalibrator athlete={selectedAthlete} onUpdateAthlete={handleUpdateAthlete} lang={lang} />
+            </Suspense>
+          )}
+
+          <Suspense fallback={<RouteLoading lang={lang} />}>
+            <Routes>
+              <Route
+                path="/dashboard"
+                element={
+                  <DashboardPage
+                    athletes={athletes}
+                    selectedAthlete={selectedAthlete}
+                    program={program}
+                    aiRecommendations={aiRecommendations}
+                    roleView={roleView}
+                    brand={brand}
+                    lang={lang}
+                    onSelectAthlete={setSelectedAthlete}
+                    onApplyAIRecommendation={handleApplyAIRecommendation}
+                    onNavigateTab={handleNavigateTab}
+                    onSetRoleView={setRoleView}
+                    onAddAthlete={handleAddAthlete}
+                    onAssignQuickPlan={handleAssignQuickPlan}
+                    onExportExecutiveReport={handleExportExecutiveReport}
+                    onExportAthletesCsv={handleExportAthletesCsv}
+                  />
+                }
               />
-
-              {/* Grid: Active Alerts & Stamina Chart */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                
-                {/* Active Warnings & Injury Alerts Box (5 cols) */}
-                <div className="lg:col-span-5">
-                  <ActiveAlerts
-                    alerts={aiRecommendations}
-                    onApplyAlert={handleApplyAIRecommendation}
+              <Route
+                path="/athletes"
+                element={
+                  <AthletesPage
+                    athletes={athletes}
+                    selectedAthlete={selectedAthlete}
+                    onSelectAthlete={setSelectedAthlete}
+                    onAddAthlete={handleAddAthlete}
+                    onNavigateTab={handleNavigateTab}
                     lang={lang}
                   />
-                </div>
-
-                {/* Stamina & Performance Area Chart (7 cols) */}
-                <div className="lg:col-span-7">
-                  <StaminaChart lang={lang} />
-                </div>
-
-              </div>
-
-              {/* Full Roster Grid & Coach Triage Details */}
-              <CoachDashboard
-                athletes={athletes}
-                selectedAthlete={selectedAthlete}
-                onSelectAthlete={setSelectedAthlete}
-                aiRecommendations={aiRecommendations}
-                onApplyAIRecommendation={handleApplyAIRecommendation}
-                onNavigateTab={setActiveTab}
-                onAddAthlete={handleAddAthlete}
-                onAssignQuickPlan={handleAssignQuickPlan}
-                lang={lang}
+                }
               />
-            </div>
-          )}
-
-          {/* Tab 2: Team Roster Module */}
-          {activeTab === 'roster' && (
-            <RosterGrid
-              athletes={athletes}
-              selectedAthlete={selectedAthlete}
-              onSelectAthlete={setSelectedAthlete}
-              onAddAthlete={handleAddAthlete}
-              onNavigateTab={setActiveTab}
-              lang={lang}
-            />
-          )}
-
-          {/* Tab 3: Biometrics & Telemetry */}
-          {activeTab === 'biometrics' && (
-            <BiometricsLab selectedAthlete={selectedAthlete} onUpdateAthlete={handleUpdateAthlete} lang={lang} />
-          )}
-
-          {/* Tab 4: Motion Analysis Kinematics */}
-          {activeTab === 'vision' && (
-            <VisionKinematics selectedAthlete={selectedAthlete} lang={lang} />
-          )}
-
-          {/* Tab 5: Workout Builder */}
-          {activeTab === 'builder' && (
-            <WorkoutBuilder
-              program={program}
-              exerciseDb={exerciseDb}
-              selectedAthlete={selectedAthlete}
-              onUpdateProgram={handleUpdateProgram}
-              lang={lang}
-            />
-          )}
-
-          {/* Tab 6: Nutrition Studio */}
-          {activeTab === 'nutrition' && (
-            <NutritionStudio
-              selectedAthlete={selectedAthlete}
-              onUpdateAthlete={handleUpdateAthlete}
-              lang={lang}
-            />
-          )}
-
-          {/* Tab 7: 360 Athlete Profile */}
-          {activeTab === 'profile360' && (
-            <Athlete360Profile
-              athlete={selectedAthlete}
-              onUpdateAthlete={handleUpdateAthlete}
-              lang={lang}
-            />
-          )}
-
-          {/* Tab 8: Athlete Mobile Sim */}
-          {activeTab === 'mobile_sim' && (
-            <AthleteMobileSim
-              athlete={selectedAthlete}
-              program={program}
-              onUpdateAthlete={handleUpdateAthlete}
-              onUpdateProgram={handleUpdateProgram}
-              lang={lang}
-            />
-          )}
-
+              <Route path="/medical" element={<MedicalPage selectedAthlete={selectedAthlete} onUpdateAthlete={handleUpdateAthlete} lang={lang} />} />
+              <Route path="/motion-analysis" element={<MotionPage selectedAthlete={selectedAthlete} lang={lang} />} />
+              <Route
+                path="/workouts"
+                element={
+                  <WorkoutsPage
+                    program={program}
+                    exerciseDb={exerciseDb}
+                    selectedAthlete={selectedAthlete}
+                    onUpdateProgram={handleUpdateProgram}
+                    lang={lang}
+                  />
+                }
+              />
+              <Route path="/nutrition" element={<NutritionPage selectedAthlete={selectedAthlete} onUpdateAthlete={handleUpdateAthlete} lang={lang} />} />
+              <Route path="/profile-360" element={<Profile360Page athlete={selectedAthlete} onUpdateAthlete={handleUpdateAthlete} lang={lang} />} />
+              <Route
+                path="/athlete-dashboard"
+                element={
+                  <AthleteDashboardPage
+                    athlete={selectedAthlete}
+                    program={program}
+                    onUpdateAthlete={handleUpdateAthlete}
+                    onUpdateProgram={handleUpdateProgram}
+                    lang={lang}
+                  />
+                }
+              />
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            </Routes>
+          </Suspense>
         </main>
 
-        {/* Global Dashboard Footer */}
-        <footer className="border-t border-slate-800/80 bg-slate-900/60 py-4 px-6 text-center text-xs text-slate-500 mt-auto">
+        <footer className="border-t border-slate-800/80 bg-slate-900/60 py-4 px-6 text-center text-xs text-slate-400 mt-auto">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
             <div>
-              <strong>
-                {isFa ? 'معماری داشبورد مربیگری اپکس (ApexOS)' : 'ApexOS Sports Coaching OS Architecture'}
-              </strong> • {isFa ? 'سیستم‌عامل عملکرد ورزشی و مدیریت هوشمند ورزشکاران' : 'AI Operating System for Human Performance'}
+              <strong>{isFa ? 'معماری داشبورد اپکس' : 'ApexOS Dashboard Architecture'}</strong> •{' '}
+              {isFa ? 'نسخه مسیرمحور + نمای نقش‌محور' : 'Route-based + role-based workspace'}
             </div>
-            <div className="flex items-center gap-4 text-slate-400 text-[11px]">
-              <span>{isFa ? 'رابط کاربری ری‌اکت و تیلویند' : 'React & Tailwind CSS'}</span>
-              <span>{isFa ? 'نمودارهای Recharts زنده' : 'Recharts Analytics'}</span>
-              <span>{isFa ? 'کاملاً رسپانسیو' : 'Fully Responsive'}</span>
+            <div className="flex items-center gap-4 text-[11px] text-slate-300">
+              <span>{isFa ? 'بهینه‌سازی ناوبری و موبایل' : 'Improved navigation & mobile UX'}</span>
+              <span>{isFa ? 'بارگذاری تنبل ماژول‌ها' : 'Lazy-loaded modules'}</span>
+              <span>{isFa ? 'قابل بوکمارک' : 'Bookmarkable views'}</span>
             </div>
           </div>
         </footer>
-
       </div>
-
     </div>
   );
 }

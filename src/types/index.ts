@@ -211,5 +211,6 @@ export interface AIRecommendation {
   insight: string;
   suggestedAction: string;
   applied: boolean;
+  reviewed?: boolean;
   evidence?: EvidenceItem;
 }
